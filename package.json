@@ -1,0 +1,31 @@
+{
+  "name": "jobreadynz",
+  "version": "1.0.0",
+  "description": "JobReady NZ — Job search dashboard for NZ IT graduates",
+  "scripts": {
+    "dev": "vite",
+    "server": "tsx watch server.ts",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "openai": "^6.38.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "tsx": "^4.22.3",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.2"
+  },
+  "private": true
+}

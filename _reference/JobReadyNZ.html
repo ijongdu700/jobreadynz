@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobReady NZ</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --surface: #181c26;
+    --surface2: #1e2232;
+    --border: #2a2f45;
+    --accent: #7c9eff;
+    --accent2: #f4a96a;
+    --green: #6fcf8e;
+    --red: #f07c7c;
+    --text: #e8eaf6;
+    --muted: #7a84a8;
+    --sidebar-w: 220px;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-serif: 'DM Serif Display', serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-sans); min-height: 100vh; overflow-x: hidden; }
+  #root { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+  .logo { padding: 0 20px 28px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .logo-title { font-family: var(--font-serif); font-size: 20px; color: var(--accent); letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; margin: 2px 10px; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s; font-size: 14px;
+    color: var(--muted); font-weight: 400; border: none;
+    background: none; width: calc(100% - 20px); text-align: left;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(124,158,255,0.12); color: var(--accent); font-weight: 500; }
+  .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+  .nav-bottom { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
+  .visa-badge { background: rgba(244,169,106,0.12); border: 1px solid rgba(244,169,106,0.3); color: var(--accent2); font-size: 11px; padding: 6px 10px; border-radius: 8px; font-weight: 500; letter-spacing: 0.3px; }
+  .visa-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 36px; min-height: 100vh; max-width: 900px; }
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-family: var(--font-serif); font-size: 28px; color: var(--text); letter-spacing: -0.5px; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .stat-num { font-family: var(--font-serif); font-size: 32px; color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .quote-card { background: linear-gradient(135deg, rgba(124,158,255,0.08), rgba(111,207,142,0.06)); border: 1px solid rgba(124,158,255,0.2); border-radius: 12px; padding: 22px; margin-bottom: 16px; }
+  .quote-text { font-family: var(--font-serif); font-size: 17px; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
+  .quote-src { font-size: 12px; color: var(--muted); }
+
+  .todo-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .todo-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; font-family: var(--font-sans); outline: none; }
+  .todo-input:focus { border-color: var(--accent); }
+  .btn { background: var(--accent); color: #0f1117; border: none; border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.85; }
+  .btn-ghost { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-check { width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 50%; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .todo-check.done { background: var(--green); border-color: var(--green); }
+  .todo-check.done::after { content: '✓'; font-size: 10px; color: #0f1117; font-weight: 700; }
+  .todo-text { flex: 1; font-size: 14px; color: var(--text); }
+  .todo-text.done { text-decoration: line-through; color: var(--muted); }
+  .todo-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 4px; }
+  .todo-del:hover { color: var(--red); background: rgba(240,124,124,0.1); }
+
+  .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; letter-spacing: 0.3px; }
+  .tag-job { background: rgba(124,158,255,0.15); color: var(--accent); }
+  .tag-self { background: rgba(111,207,142,0.15); color: var(--green); }
+  .tag-life { background: rgba(244,169,106,0.15); color: var(--accent2); }
+
+  .diary-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; color: var(--text); font-size: 14px; font-family: var(--font-sans); line-height: 1.7; resize: vertical; outline: none; min-height: 140px; }
+  .diary-textarea:focus { border-color: var(--accent); }
+  .diary-entry { padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .diary-date { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .diary-preview { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+  .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .tool-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s; }
+  .tool-card:hover { border-color: var(--accent); background: rgba(124,158,255,0.06); }
+  .tool-icon { font-size: 22px; margin-bottom: 8px; }
+  .tool-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .tool-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .chat-container { max-height: 340px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .chat-msg { max-width: 80%; padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
+  .chat-msg.user { background: rgba(124,158,255,0.15); color: var(--text); align-self: flex-end; border-bottom-right-radius: 2px; }
+  .chat-msg.ai { background: var(--surface2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; }
+  .chat-row { display: flex; gap: 8px; }
+  .chat-inp { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; font-family: var(--font-sans); outline: none; }
+  .chat-inp:focus { border-color: var(--accent); }
+
+  .wellness-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .wellness-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .wellness-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .wellness-emoji { font-size: 30px; margin-bottom: 10px; }
+  .wellness-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .wellness-desc { font-size: 11px; color: var(--muted); }
+
+  .job-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+  .job-logo { width: 40px; height: 40px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .job-info { flex: 1; }
+  .job-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .job-company { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .job-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .job-tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: rgba(124,158,255,0.1); color: var(--accent); }
+  .job-action { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; max-width: 260px; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .toast-msg { font-size: 14px; color: var(--text); line-height: 1.5; }
+  .toast-close { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; }
+
+  .progress-bar { background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; border-radius: 4px; background: var(--green); transition: width 0.4s ease; }
+
+  .link-card { display: flex; align-items: center; gap: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; text-decoration: none; color: var(--text); transition: all 0.15s; cursor: pointer; }
+  .link-card:hover { border-color: var(--accent); }
+  .link-icon { font-size: 20px; }
+  .link-name { font-size: 14px; font-weight: 500; }
+  .link-url { font-size: 11px; color: var(--muted); }
+  .link-arrow { margin-left: auto; color: var(--muted); font-size: 16px; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .date-chip { font-size: 12px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; display: inline-block; margin-bottom: 20px; }
+
+  select { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 13px; font-family: var(--font-sans); outline: none; }
+  .mood-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .mood-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 16px; transition: all 0.15s; }
+  .mood-btn:hover, .mood-btn.sel { border-color: var(--accent); background: rgba(124,158,255,0.1); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const QUOTES = [
+  { text: "Every expert was once a beginner. You're building skills every single day.", src: "Keep going" },
+  { text: "New Zealand is waiting for someone exactly like you. Keep applying.", src: "Believe it" },
+  { text: "The job search is hard. But you doing it means you're already ahead.", src: "You're doing great" },
+  { text: "Rejection is redirection. Your opportunity is closer than it feels.", src: "Stay strong" },
+  { text: "A PSWV in NZ is a head start — embrace it.", src: "You have an edge" },
+  { text: "One application a day keeps unemployment away. You've got this.", src: "Momentum" },
+];
+
+const MOTIVATIONS = [
+  "이미 잘하고 있어 — 오늘도 열었잖아! 🌟",
+  "완벽하지 않아도 돼. 그냥 계속하면 돼. 💪",
+  "취업 준비는 마라톤이야. 넌 이미 달리고 있어!",
+  "오늘 한 걸음이 내일의 기회를 만들어.",
+  "NZ의 어딘가에 딱 맞는 포지션이 기다리고 있어!",
+  "레주메 하나 더 보내는 게 오늘의 승리야.",
+];
+
+const NAV = [
+  { id: 'dashboard', label: 'Dashboard', icon: '⬡' },
+  { id: 'jobs', label: 'Job Finder', icon: '🔍' },
+  { id: 'todo', label: 'Daily Plan', icon: '✓' },
+  { id: 'diary', label: 'Diary', icon: '📖' },
+  { id: 'ai', label: 'AI Tools', icon: '✦' },
+  { id: 'interview', label: 'Interview Prep', icon: '🎤' },
+  { id: 'wellness', label: 'Wellness', icon: '☀' },
+];
+
+const SAMPLE_JOBS = [
+  { icon: '💻', title: 'IT Support Analyst', company: 'Spark NZ · Auckland', tags: ['Entry Level', 'PSWV OK', 'Full Time'] },
+  { icon: '📊', title: 'Junior Data Analyst', company: 'Stats NZ · Wellington', tags: ['Graduate', 'Hybrid', 'Govt'] },
+  { icon: '🌐', title: 'Web Support Officer', company: 'Datacom · Christchurch', tags: ['Entry Level', 'PSWV OK'] },
+  { icon: '🤝', title: 'Service Desk Engineer', company: 'Fujitsu · Auckland', tags: ['Graduate', 'Full Time'] },
+];
+
+const RESUME_LINKS = [
+  { icon: '📄', name: 'Canva Resume Builder', url: 'https://www.canva.com/resumes/', desc: 'canva.com/resumes' },
+  { icon: '🎯', name: 'Seek NZ Jobs', url: 'https://www.seek.co.nz', desc: 'seek.co.nz — NZ #1 job board' },
+  { icon: '💼', name: 'LinkedIn Jobs', url: 'https://www.linkedin.com/jobs', desc: 'linkedin.com/jobs' },
+  { icon: '🇳🇿', name: 'Trade Me Jobs', url: 'https://www.trademe.co.nz/jobs', desc: 'trademe.co.nz/jobs' },
+  { icon: '📝', name: 'Zety CV Builder', url: 'https://zety.com', desc: 'zety.com — ATS-friendly templates' },
+];
+
+const WELLNESS_ITEMS = [
+  { emoji: '😸', name: 'Pet a cat', desc: 'Virtual cat cuddle therapy', action: 'cat' },
+  { emoji: '🎮', name: 'Mini Game', desc: '2-min focus breaker', action: 'game' },
+  { emoji: '🎬', name: 'Watch this', desc: 'Motivational clip', action: 'video' },
+  { emoji: '🧘', name: 'Breathe', desc: '1-min calm exercise', action: 'breathe' },
+  { emoji: '📊', name: 'Progress', desc: "See how far you've come", action: 'progress' },
+  { emoji: '💌', name: 'Kind note', desc: 'A message just for you', action: 'note' },
+];
+
+function Dashboard({ todos, diaries }) {
+  const today = new Date().toLocaleDateString('en-NZ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const [qIdx, setQIdx] = useState(Math.floor(Math.random() * QUOTES.length));
+  const done = todos.filter(t => t.done).length;
+  const total = todos.length;
+  return (
+    <div>
+      <div className="date-chip">📅 {today} · NZT</div>
+      <div className="page-header">
+        <div className="page-title">Good evening 👋</div>
+        <div className="page-sub">Your JobReady dashboard — let's make today count.</div>
+      </div>
+      <div className="quote-card">
+        <div className="quote-text">"{QUOTES[qIdx].text}"</div>
+        <div className="quote-src">— {QUOTES[qIdx].src}</div>
+        <button className="btn btn-ghost btn-sm" style={{marginTop:12,fontSize:11}} onClick={() => setQIdx((qIdx+1)%QUOTES.length)}>New quote →</button>
+      </div>
+      <div className="grid-3">
+        <div className="card">
+          <div className="stat-label">Tasks today</div>
+          <div className="stat-num">{done}/{total}</div>
+          <div className="progress-bar"><div className="progress-fill" style={{width: total ? `${(done/total)*100}%` : '0%'}} /></div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Diary entries</div>
+          <div className="stat-num">{diaries.length}</div>
+          <div style={{fontSize:11,color:'var(--muted)',marginTop:6}}>days recorded</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Jobs waiting</div>
+          <div className="stat-num">{SAMPLE_JOBS.length}</div>
+          <div style={{fontSize:11,color:'var(--muted)',marginTop:6}}>new matches today</div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-title">Today's priority tasks</div>
+        {todos.length === 0 && <div style={{color:'var(--muted)',fontSize:13}}>No tasks yet — head to Daily Plan to add some.</div>}
+        {todos.slice(0,4).map(t => (
+          <div className="todo-item" key={t.id}>
+            <div className={`todo-check ${t.done?'done':''}`} />
+            <div className={`todo-text ${t.done?'done':''}`}>{t.text}</div>
+            {t.cat && <span className={`tag tag-${t.cat}`}>{t.cat}</span>}
+          </div>
+        ))}
+      </div>
+      <div className="card">
+        <div className="card-title">Today's job match 🔥</div>
+        {SAMPLE_JOBS.slice(0,2).map((j,i) => (
+          <div className="job-card" key={i}>
+            <div className="job-logo">{j.icon}</div>
+            <div className="job-info">
+              <div className="job-title">{j.title}</div>
+              <div className="job-company">{j.company}</div>
+              <div className="job-tags">{j.tags.map(t => <span key={t} className="job-tag">{t}</span>)}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Jobs() {
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">Job Finder</div>
+        <div className="page-sub">AI-curated roles for NZ IT graduates with PSWV · Updated daily at 7pm NZT</div>
+      </div>
+      <div className="card" style={{background:'rgba(124,158,255,0.05)',borderColor:'rgba(124,158,255,0.25)'}}>
+        <div style={{fontSize:13,color:'var(--muted)',marginBottom:4}}>🤖 AI Job Agent</div>
+        <div style={{fontSize:14,color:'var(--text)'}}>Daily recommendations will appear here at 7pm NZT. The agent scans Seek, LinkedIn, and Trade Me for entry-level IT roles suitable for PSWV holders.</div>
+        <button className="btn btn-ghost btn-sm" style={{marginTop:12}}>Configure preferences →</button>
+      </div>
+      <div style={{marginBottom:14,display:'flex',gap:8,alignItems:'center'}}>
+        <span style={{fontSize:13,color:'var(--muted)'}}>Today's picks:</span>
+        <span className="tag tag-job">4 new</span>
+      </div>
+      {SAMPLE_JOBS.map((j,i) => (
+        <div className="job-card" key={i}>
+          <div className="job-logo">{j.icon}</div>
+          <div className="job-info">
+            <div className="job-title">{j.title}</div>
+            <div className="job-company">{j.company}</div>
+            <div className="job-tags">{j.tags.map(t => <span key={t} className="job-tag">{t}</span>)}</div>
+          </div>
+          <div className="job-action">
+            <button className="btn btn-sm">Apply →</button>
+            <button className="btn btn-ghost btn-sm">Save</button>
+          </div>
+        </div>
+      ))}
+      <div className="card" style={{marginTop:8}}>
+        <div className="card-title">Quick links</div>
+        {RESUME_LINKS.filter(r => r.name.includes('Seek')||r.name.includes('LinkedIn')||r.name.includes('Trade')).map(r => (
+          <a key={r.name} className="link-card" href={r.url} target="_blank" rel="noreferrer">
+            <span className="link-icon">{r.icon}</span>
+            <div><div className="link-name">{r.name}</div><div className="link-url">{r.desc}</div></div>
+            <span className="link-arrow">↗</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Todo({ todos, setTodos }) {
+  const [input, setInput] = useState('');
+  const [cat, setCat] = useState('job');
+  const add = () => {
+    if (!input.trim()) return;
+    const updated = [...todos, { id: Date.now(), text: input.trim(), done: false, cat }];
+    setTodos(updated);
+    localStorage.setItem('jr_todos', JSON.stringify(updated));
+    setInput('');
+  };
+  const toggle = (id) => {
+    const updated = todos.map(t => t.id===id ? {...t,done:!t.done} : t);
+    setTodos(updated); localStorage.setItem('jr_todos', JSON.stringify(updated));
+  };
+  const del = (id) => {
+    const updated = todos.filter(t => t.id!==id);
+    setTodos(updated); localStorage.setItem('jr_todos', JSON.stringify(updated));
+  };
+  const clearDone = () => {
+    const updated = todos.filter(t => !t.done);
+    setTodos(updated); localStorage.setItem('jr_todos', JSON.stringify(updated));
+  };
+  const done = todos.filter(t => t.done).length;
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">Daily Plan</div>
+        <div className="page-sub">Check things off as you go. Small wins add up.</div>
+      </div>
+      <div className="card">
+        <div className="card-title">Add task</div>
+        <div style={{display:'flex',gap:8,marginBottom:10}}>
+          {['job','self','life'].map(c => (
+            <button key={c} className={`tag tag-${c}`} style={{cursor:'pointer',padding:'6px 14px',border:cat===c?'1px solid currentColor':'1px solid transparent',borderRadius:6,background:'transparent'}} onClick={() => setCat(c)}>
+              {c==='job'?'💼 Job':c==='self'?'📚 Self-dev':'🌿 Life'}
+            </button>
+          ))}
+        </div>
+        <div className="todo-input-row">
+          <input className="todo-input" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&add()} placeholder="What do you want to get done today?" />
+          <button className="btn" onClick={add}>Add</button>
+        </div>
+      </div>
+      <div className="card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+          <div className="card-title" style={{margin:0}}>Tasks · {done}/{todos.length} done</div>
+          {done>0 && <button className="btn btn-ghost btn-sm" onClick={clearDone}>Clear done</button>}
+        </div>
+        {todos.length===0 && <div style={{color:'var(--muted)',fontSize:13,padding:'8px 0'}}>No tasks yet — add your first one above!</div>}
+        {todos.map(t => (
+          <div className="todo-item" key={t.id}>
+            <div className={`todo-check ${t.done?'done':''}`} onClick={() => toggle(t.id)} />
+            <div className={`todo-text ${t.done?'done':''}`}>{t.text}</div>
+            {t.cat && <span className={`tag tag-${t.cat}`}>{t.cat==='job'?'💼':t.cat==='self'?'📚':'🌿'}</span>}
+            <button className="todo-del" onClick={() => del(t.id)}>×</button>
+          </div>
+        ))}
+        {todos.length>0 && (
+          <div style={{marginTop:12}}>
+            <div className="progress-bar"><div className="progress-fill" style={{width:`${(done/todos.length)*100}%`}} /></div>
+            <div style={{fontSize:11,color:'var(--muted)',marginTop:6,textAlign:'right'}}>{Math.round((done/todos.length)*100)}% complete</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Diary({ diaries, setDiaries }) {
+  const [text, setText] = useState('');
+  const [mood, setMood] = useState('');
+  const [viewing, setViewing] = useState(null);
+  const today = new Date().toISOString().split('T')[0];
+  const save = () => {
+    if (!text.trim()) return;
+    const entry = { id: Date.now(), date: today, text: text.trim(), mood };
+    const updated = [entry, ...diaries.filter(d => d.date!==today)];
+    setDiaries(updated); localStorage.setItem('jr_diaries', JSON.stringify(updated));
+    setText(''); setMood('');
+  };
+  const todayEntry = diaries.find(d => d.date===today);
+  if (viewing) return (
+    <div>
+      <div className="page-header">
+        <button className="btn btn-ghost btn-sm" style={{marginBottom:12}} onClick={() => setViewing(null)}>← Back</button>
+        <div className="page-title">Diary</div>
+      </div>
+      <div className="card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+          <div className="diary-date" style={{fontSize:13}}>{viewing.date} {viewing.mood}</div>
+        </div>
+        <div style={{fontSize:15,color:'var(--text)',lineHeight:1.75,whiteSpace:'pre-wrap'}}>{viewing.text}</div>
+      </div>
+    </div>
+  );
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">Diary</div>
+        <div className="page-sub">Write freely. This space is just for you.</div>
+      </div>
+      <div className="card">
+        <div className="card-title">Today's entry · {today}</div>
+        {todayEntry && <div style={{fontSize:12,color:'var(--green)',marginBottom:10}}>✓ Entry saved — you can update it below</div>}
+        <div style={{marginBottom:10}}>
+          <div style={{fontSize:12,color:'var(--muted)',marginBottom:6}}>How are you feeling?</div>
+          <div className="mood-row">
+            {['😴','😔','😐','🙂','😄'].map(m => (
+              <button key={m} className={`mood-btn ${mood===m?'sel':''}`} onClick={() => setMood(mood===m?'':m)}>{m}</button>
+            ))}
+          </div>
+        </div>
+        <textarea className="diary-textarea" value={text} onChange={e=>setText(e.target.value)} placeholder="오늘 어땠어? 어떤 것을 시도했고, 무엇이 잘 됐고, 뭐가 힘들었어? 여기는 솔직해도 괜찮아." />
+        <div style={{marginTop:10,display:'flex',gap:8}}>
+          <button className="btn" onClick={save}>Save entry</button>
+          {text && <button className="btn btn-ghost" onClick={() => setText('')}>Clear</button>}
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-title">Past entries · {diaries.length} days</div>
+        {diaries.length===0 && <div style={{color:'var(--muted)',fontSize:13}}>No entries yet. Write your first one above!</div>}
+        {diaries.map(d => (
+          <div className="diary-entry" key={d.id} onClick={() => setViewing(d)}>
+            <div className="diary-date">{d.date} {d.mood}</div>
+            <div className="diary-preview">{d.text.slice(0,120)}{d.text.length>120?'…':''}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AITools() {
+  const [active, setActive] = useState(null);
+  const [input, setInput] = useState('');
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
+  const tools = [
+    { id:'cv', icon:'📄', name:'CV Analyser', desc:'Get feedback on your resume', prompt:'You are a helpful NZ career advisor. Analyse the following CV/resume and give constructive, specific feedback. Focus on: clarity, ATS-friendliness, and suitability for NZ IT entry-level roles. CV: ' },
+    { id:'cover', icon:'✉️', name:'Cover Letter', desc:'Generate a tailored cover letter', prompt:'Write a professional cover letter for a recent IT graduate in New Zealand with no experience, holding a PSWV (Post Study Work Visa). The job/company details: ' },
+    { id:'linkedin', icon:'💼', name:'LinkedIn Summary', desc:"Craft your About section", prompt:'Write a compelling LinkedIn About section for a recent IT graduate in New Zealand. No experience yet but eager and skilled. Key info: ' },
+    { id:'skills', icon:'🧩', name:'Skills Gap', desc:'Find what to learn next', prompt:'I am a recent IT graduate in NZ with no work experience. Based on NZ job market trends, what are the top 5 skills I should focus on learning? My current skills: ' },
+  ];
+  const run = async (tool) => {
+    if (!input.trim()) return;
+    setLoading(true); setResult('');
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:tool.prompt+input}] })
+      });
+      const data = await res.json();
+      setResult(data.content?.map(c=>c.text||'').join('')||'No response.');
+    } catch(e) { setResult('Error connecting to AI. Please try again.'); }
+    setLoading(false);
+  };
+  if (active) {
+    const tool = tools.find(t=>t.id===active);
+    return (
+      <div>
+        <div className="page-header">
+          <button className="btn btn-ghost btn-sm" style={{marginBottom:12}} onClick={() => {setActive(null);setInput('');setResult('');}}>← Back</button>
+          <div className="page-title">{tool.icon} {tool.name}</div>
+        </div>
+        <div className="card">
+          <div className="card-title">Your input</div>
+          <textarea className="diary-textarea" value={input} onChange={e=>setInput(e.target.value)} placeholder={tool.id==='cv'?'Paste your CV text here...':tool.id==='cover'?'e.g. Junior Developer at Datacom Auckland...':'Tell me about yourself...'} style={{minHeight:120}} />
+          <button className="btn" style={{marginTop:10}} onClick={() => run(tool)} disabled={loading}>{loading?'Thinking…':'Run AI ✦'}</button>
+        </div>
+        {result && (
+          <div className="card">
+            <div className="card-title">AI Response</div>
+            <div style={{fontSize:14,color:'var(--text)',lineHeight:1.8,whiteSpace:'pre-wrap'}}>{result}</div>
+          </div>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">AI Tools</div>
+        <div className="page-sub">Claude-powered tools to sharpen your applications.</div>
+      </div>
+      <div className="tool-grid">
+        {tools.map(t => (
+          <div className="tool-card" key={t.id} onClick={() => setActive(t.id)}>
+            <div className="tool-icon">{t.icon}</div>
+            <div className="tool-name">{t.name}</div>
+            <div className="tool-desc">{t.desc}</div>
+          </div>
+        ))}
+      </div>
+      <div className="card">
+        <div className="card-title">Resume builder links</div>
+        {RESUME_LINKS.filter(r=>!r.name.includes('Seek')&&!r.name.includes('Trade')).map(r => (
+          <a key={r.name} className="link-card" href={r.url} target="_blank" rel="noreferrer">
+            <span className="link-icon">{r.icon}</span>
+            <div><div className="link-name">{r.name}</div><div className="link-url">{r.desc}</div></div>
+            <span className="link-arrow">↗</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Interview() {
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [started, setStarted] = useState(false);
+  const chatRef = useRef();
+  const SYSTEM = `You are a friendly but professional interviewer for junior IT roles in New Zealand. The candidate is a recent graduate with no IT work experience, holding a PSWV visa. Ask ONE question at a time. After their answer, give brief encouraging feedback (1-2 sentences), then ask the next question. Mix: behavioural, technical basics, and NZ workplace culture questions. Start by introducing yourself and asking the first question. Keep responses concise and natural.`;
+  const start = async () => {
+    setStarted(true); setLoading(true);
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300, system:SYSTEM, messages:[{role:'user',content:'Start the interview session.'}] })
+      });
+      const data = await res.json();
+      setMsgs([{role:'ai',text:data.content?.map(c=>c.text||'').join('')||''}]);
+    } catch(e) { setMsgs([{role:'ai',text:'Error starting session.'}]); }
+    setLoading(false);
+  };
+  const send = async () => {
+    if (!input.trim()) return;
+    const newMsgs = [...msgs,{role:'user',text:input}];
+    setMsgs(newMsgs); setInput(''); setLoading(true);
+    try {
+      const apiMsgs = newMsgs.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300, system:SYSTEM, messages:apiMsgs })
+      });
+      const data = await res.json();
+      setMsgs(prev=>[...prev,{role:'ai',text:data.content?.map(c=>c.text||'').join('')||''}]);
+    } catch(e) { setMsgs(prev=>[...prev,{role:'ai',text:'Connection error.'}]); }
+    setLoading(false);
+    setTimeout(()=>{if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},100);
+  };
+  if (!started) return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">Interview Prep</div>
+        <div className="page-sub">Practice with an AI interviewer tailored for NZ IT entry-level roles.</div>
+      </div>
+      <div className="card" style={{textAlign:'center',padding:'40px 24px'}}>
+        <div style={{fontSize:40,marginBottom:16}}>🎤</div>
+        <div style={{fontSize:16,fontWeight:500,marginBottom:8}}>Ready to practice?</div>
+        <div style={{fontSize:14,color:'var(--muted)',marginBottom:24,lineHeight:1.6}}>The AI interviewer will ask you questions one by one, give feedback, and help you get comfortable.</div>
+        <button className="btn" onClick={start}>Start interview session →</button>
+      </div>
+    </div>
+  );
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">Interview Session 🎤</div>
+        <button className="btn btn-ghost btn-sm" onClick={()=>{setStarted(false);setMsgs([]);}}>End session</button>
+      </div>
+      <div className="card" style={{padding:'16px'}}>
+        <div className="chat-container" ref={chatRef}>
+          {msgs.map((m,i)=><div key={i} className={`chat-msg ${m.role}`}>{m.text}</div>)}
+          {loading && <div className="chat-msg ai" style={{color:'var(--muted)'}}>Thinking…</div>}
+        </div>
+        <div className="chat-row">
+          <input className="chat-inp" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder="Your answer…" disabled={loading} />
+          <button className="btn" onClick={send} disabled={loading}>Send</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Wellness({ onToast }) {
+  const [catClicks, setCatClicks] = useState(0);
+  const [score, setScore] = useState(0);
+  const [gameActive, setGameActive] = useState(false);
+  const [breathPhase, setBreathPhase] = useState(null);
+  const [target, setTarget] = useState({x:50,y:50});
+  const handleWellness = (action) => {
+    if (action==='cat') setCatClicks(c=>c+1);
+    if (action==='note') onToast(MOTIVATIONS[Math.floor(Math.random()*MOTIVATIONS.length)]);
+    if (action==='video') window.open('https://www.youtube.com/watch?v=ZXsQAXx_ao0','_blank');
+    if (action==='game') setGameActive(true);
+    if (action==='breathe') {
+      setBreathPhase('in');
+      let count=0;
+      const cycle=()=>{
+        setBreathPhase('in');
+        setTimeout(()=>setBreathPhase('hold'),4000);
+        setTimeout(()=>setBreathPhase('out'),8000);
+        setTimeout(()=>{ count++; if(count<3)cycle(); else setBreathPhase('done'); },12000);
+      };
+      cycle();
+    }
+  };
+  if (breathPhase&&breathPhase!=='done') {
+    const msgs={in:'숨을 들이쉬세요 (4초)',hold:'잠깐 멈추세요 (4초)',out:'천천히 내쉬세요 (4초)'};
+    const colors={in:'var(--accent)',hold:'var(--accent2)',out:'var(--green)'};
+    return (
+      <div>
+        <div className="page-header"><div className="page-title">Breathe 🧘</div></div>
+        <div className="card" style={{textAlign:'center',padding:'60px 20px'}}>
+          <div style={{width:120,height:120,borderRadius:'50%',background:'rgba(124,158,255,0.1)',border:`2px solid ${colors[breathPhase]}`,margin:'0 auto 24px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,color:colors[breathPhase],fontWeight:500,transition:'all 0.5s'}}>{msgs[breathPhase]}</div>
+          <button className="btn btn-ghost btn-sm" style={{marginTop:20}} onClick={()=>setBreathPhase(null)}>Stop</button>
+        </div>
+      </div>
+    );
+  }
+  if (breathPhase==='done') return (
+    <div>
+      <div className="page-header"><div className="page-title">Breathe 🧘</div></div>
+      <div className="card" style={{textAlign:'center',padding:'60px 20px'}}>
+        <div style={{fontSize:40,marginBottom:12}}>🌟</div>
+        <div style={{fontSize:16,fontWeight:500,marginBottom:8}}>잘했어! 3번 완료했어.</div>
+        <button className="btn" style={{marginTop:12}} onClick={()=>setBreathPhase(null)}>Back to Wellness</button>
+      </div>
+    </div>
+  );
+  if (gameActive) return (
+    <div>
+      <div className="page-header"><div className="page-title">🎮 Click the dot!</div></div>
+      <div className="card" style={{textAlign:'center'}}>
+        <div style={{fontSize:13,color:'var(--muted)',marginBottom:12}}>Score: {score}</div>
+        <div style={{position:'relative',height:200,background:'var(--surface2)',borderRadius:10,overflow:'hidden'}}>
+          <div onClick={()=>{setScore(s=>s+1);setTarget({x:Math.random()*80+10,y:Math.random()*70+15});}} style={{position:'absolute',left:`${target.x}%`,top:`${target.y}%`,width:32,height:32,borderRadius:'50%',background:'var(--accent)',cursor:'pointer',transform:'translate(-50%,-50%)',transition:'left 0.1s,top 0.1s'}} />
+        </div>
+        <button className="btn btn-ghost btn-sm" style={{marginTop:12}} onClick={()=>{setGameActive(false);setScore(0);}}>Exit game</button>
+      </div>
+    </div>
+  );
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">Wellness Corner ☀</div>
+        <div className="page-sub">취업 준비가 힘들 때 잠깐 쉬어가는 공간.</div>
+      </div>
+      {catClicks>0 && (
+        <div className="card" style={{textAlign:'center',padding:'24px',marginBottom:16}}>
+          <div style={{fontSize:48,marginBottom:4}}>{catClicks<5?'🐱':catClicks<15?'😸':'😻'}</div>
+          <div style={{fontSize:14,color:'var(--text)'}}>{catClicks<5?'Petting the cat... 🐾':catClicks<15?`${catClicks} pets! The cat is purring 💛`:`${catClicks} pets!! The cat loves you so much 💕`}</div>
+          <button className="btn btn-ghost btn-sm" style={{marginTop:10}} onClick={()=>setCatClicks(c=>c+1)}>Pet more 🐾</button>
+        </div>
+      )}
+      <div className="wellness-grid">
+        {WELLNESS_ITEMS.map(w=>(
+          <div className="wellness-card" key={w.action} onClick={()=>handleWellness(w.action)}>
+            <div className="wellness-emoji">{w.emoji}</div>
+            <div className="wellness-name">{w.name}</div>
+            <div className="wellness-desc">{w.desc}</div>
+          </div>
+        ))}
+      </div>
+      <div className="card" style={{marginTop:8,background:'rgba(111,207,142,0.05)',borderColor:'rgba(111,207,142,0.2)'}}>
+        <div style={{fontSize:14,color:'var(--text)',lineHeight:1.7}}>
+          💚 <strong>Remember:</strong> 취업 준비는 길고 외롭고 힘든 과정이야. 근데 넌 매일 앱을 열고, 계획 세우고, 지원서 쓰고 있어. 그게 이미 엄청난 거야. 조금씩 꾸준히. 반드시 된다.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [page, setPage] = useState('dashboard');
+  const [todos, setTodos] = useState(()=>{try{return JSON.parse(localStorage.getItem('jr_todos')||'[]');}catch{return [];}});
+  const [diaries, setDiaries] = useState(()=>{try{return JSON.parse(localStorage.getItem('jr_diaries')||'[]');}catch{return [];}});
+  const [toast, setToast] = useState(null);
+  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null),4000); };
+  useEffect(()=>{ const t=setTimeout(()=>showToast(MOTIVATIONS[Math.floor(Math.random()*MOTIVATIONS.length)]),8000); return()=>clearTimeout(t); },[]);
+  const pages = { dashboard:<Dashboard todos={todos} diaries={diaries}/>, jobs:<Jobs/>, todo:<Todo todos={todos} setTodos={setTodos}/>, diary:<Diary diaries={diaries} setDiaries={setDiaries}/>, ai:<AITools/>, interview:<Interview/>, wellness:<Wellness onToast={showToast}/> };
+  return (
+    <>
+      <div className="sidebar">
+        <div className="logo">
+          <div className="logo-title">JobReady NZ</div>
+          <div className="logo-sub">취업 준비 대시보드</div>
+        </div>
+        {NAV.map(n=>(
+          <button key={n.id} className={`nav-item ${page===n.id?'active':''}`} onClick={()=>setPage(n.id)}>
+            <span className="nav-icon">{n.icon}</span>{n.label}
+          </button>
+        ))}
+        <div className="nav-bottom">
+          <div className="visa-label">Visa status</div>
+          <div className="visa-badge">🇳🇿 PSWV · Active</div>
+        </div>
+      </div>
+      <div className="main">{pages[page]}</div>
+      {toast && (
+        <div className="toast">
+          <button className="toast-close" onClick={()=>setToast(null)}>×</button>
+          <div className="toast-msg">✨ {toast}</div>
+        </div>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
