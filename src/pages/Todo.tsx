@@ -17,9 +17,10 @@ const COLORS = [
 ];
 
 function offsetToDate(offset: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toISOString().split('T')[0];
+  const nzt = new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
+  const [y, m, d] = nzt.split('-').map(Number);
+  const result = new Date(y, m - 1, d + offset);
+  return result.toLocaleDateString('en-CA');
 }
 
 function dayLabel(offset: number) {
@@ -29,9 +30,10 @@ function dayLabel(offset: number) {
 }
 
 function fullDateLabel(offset: number) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toLocaleDateString('en-NZ', { weekday: 'long', month: 'long', day: 'numeric' });
+  const nzt = new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
+  const [y, m, d] = nzt.split('-').map(Number);
+  const result = new Date(y, m - 1, d + offset);
+  return result.toLocaleDateString('en-NZ', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'Pacific/Auckland' });
 }
 
 function loadPlanner(): Planner {

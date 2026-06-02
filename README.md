@@ -10,7 +10,54 @@
 
 ---
 
-## Overview
+## Project Status
+
+| Feature | Status |
+|---------|--------|
+| Dashboard | ✅ Complete |
+| Daily Planner | ✅ Complete |
+| Diary | ✅ Complete |
+| AI Tools | ✅ Complete |
+| Interview Prep | ✅ Complete |
+| Job Finder | ✅ Complete |
+| Wellness Corner | ✅ Complete |
+| News Automation | ✅ Complete |
+| Learning Path | 🔧 In progress |
+| Application Tracker | 🔧 In progress |
+
+---
+
+## Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+![Dashboard with News](screenshots/dashboard_news.png)
+
+### Daily Planner
+![Daily Planner](screenshots/dailyplan.png)
+
+### Job Finder
+![Job Finder](screenshots/jobseeker.png)
+
+### AI Tools
+![AI Tools](screenshots/ai_tools.png)
+
+### Interview Prep
+![Interview Prep](screenshots/interview.png)
+
+### Wellness Corner
+![Wellness](screenshots/wellness.png)
+
+### Learning Path
+![Learning Path](screenshots/learning_path.png)
+![Adding Skills with AI](screenshots/adding_learning_path.png)
+
+### Application Tracker
+![Application Tracker](screenshots/application_tracker.png)
+
+---
+
+
 
 JobReady NZ is a full-stack web application I built to support my own job search as a recent Computer Science and Mathematics graduate in New Zealand. Rather than juggling multiple tools, everything I need is in one place — daily planning, AI-assisted applications, interview practice, job discovery, and mental wellness.
 
@@ -196,7 +243,7 @@ This project was built using an **AI-assisted development workflow** with [Claud
 - **I made all product decisions** — design, features, UX, filtering logic, tech choices
 - **I debugged and directed** when things went wrong (e.g. the job scraping attempts)
 
-This reflects a modern development approach where AI accelerates implementation, while the developer drives architecture, problem-solving, and product thinking. Every decision and iteration is documented in [DEVLOG_EN.md](./DEVLOG_EN.md).
+This reflects a modern development approach where AI accelerates implementation, while the developer drives architecture, problem-solving, and product thinking. Every prompt, decision, and iteration is documented in [DEVLOG_EN.md](./DEVLOG_EN.md).
 
 **Key challenges I navigated:**
 - **CORS & API security** — identified the problem, decided on Express proxy solution

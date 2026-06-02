@@ -10,7 +10,7 @@ interface PlannerTask {
 }
 
 function getTodayTasks(): PlannerTask[] {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
   try {
     const data = JSON.parse(localStorage.getItem('jr_planner') ?? '{}') as Record<string, PlannerTask[]>;
     return [...(data[today] ?? [])].sort((a, b) => a.time.localeCompare(b.time));
@@ -48,13 +48,14 @@ const CATEGORY_STYLE: Record<string, { bg: string; color: string }> = {
 
 function formatLastScan(iso: string): string {
   const scanned = new Date(iso);
-  const now = new Date();
-  const todayStr = now.toDateString();
-  const yesterdayStr = new Date(now.getTime() - 86400000).toDateString();
-  const time = scanned.toLocaleTimeString('en-NZ', { hour: 'numeric', minute: '2-digit', hour12: true });
-  if (scanned.toDateString() === todayStr) return `Today ${time}`;
-  if (scanned.toDateString() === yesterdayStr) return `Yesterday ${time}`;
-  const date = scanned.toLocaleDateString('en-NZ', { month: 'short', day: 'numeric' });
+  const nztToday = new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
+  const [y, m, d] = nztToday.split('-').map(Number);
+  const nztYesterday = new Date(y, m - 1, d - 1).toLocaleDateString('en-CA');
+  const scannedNzt = scanned.toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
+  const time = scanned.toLocaleTimeString('en-NZ', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Pacific/Auckland' });
+  if (scannedNzt === nztToday) return `Today ${time}`;
+  if (scannedNzt === nztYesterday) return `Yesterday ${time}`;
+  const date = scanned.toLocaleDateString('en-NZ', { month: 'short', day: 'numeric', timeZone: 'Pacific/Auckland' });
   return `${date}, ${time}`;
 }
 
@@ -66,7 +67,12 @@ interface DashboardProps {
 export default function Dashboard({ diaries, onNavigate }: DashboardProps) {
   const today = new Date().toLocaleDateString('en-NZ', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    timeZone: 'Pacific/Auckland',
   });
+  const nztHour = parseInt(new Date().toLocaleString('en-NZ', {
+    hour: 'numeric', hour12: false, timeZone: 'Pacific/Auckland',
+  }), 10);
+  const greeting = nztHour < 12 ? 'Good morning' : nztHour < 18 ? 'Good afternoon' : 'Good evening';
   const [qIdx, setQIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
   const [lastScan, setLastScan] = useState<string | null>(null);
   const [newsData, setNewsData] = useState<NewsData>({ lastUpdated: null, articles: [] });
@@ -100,7 +106,7 @@ export default function Dashboard({ diaries, onNavigate }: DashboardProps) {
     <div>
       <div className="date-chip">📅 {today} · NZT</div>
       <div className="page-header">
-        <div className="page-title">Good day 👋</div>
+        <div className="page-title">{greeting} 👋</div>
         <div className="page-sub">Your JobReady dashboard — let's make today count.</div>
       </div>
 

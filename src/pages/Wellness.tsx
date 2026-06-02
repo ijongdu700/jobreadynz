@@ -58,7 +58,7 @@ interface WellnessProps {
 }
 
 function getStats() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
   let todayDone = 0, todayTotal = 0;
   try {
     const planner = JSON.parse(localStorage.getItem('jr_planner') ?? '{}') as Record<string, { done: boolean }[]>;
@@ -73,7 +73,7 @@ function getStats() {
     totalEntries = diaries.length;
     const dates = new Set(diaries.map(d => d.date));
     const cursor = new Date();
-    while (dates.has(cursor.toISOString().split('T')[0])) {
+    while (dates.has(cursor.toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' }))) {
       streak++;
       cursor.setDate(cursor.getDate() - 1);
     }

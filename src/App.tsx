@@ -7,12 +7,15 @@ import Diary from './pages/Diary';
 import AITools from './pages/AITools';
 import Interview from './pages/Interview';
 import Wellness from './pages/Wellness';
+import LearningPath from './pages/LearningPath';
+import Tracker from './pages/Tracker';
 
-export type PageId = 'dashboard' | 'jobs' | 'todo' | 'diary' | 'ai' | 'interview' | 'wellness';
+export type PageId = 'dashboard' | 'jobs' | 'todo' | 'diary' | 'ai' | 'interview' | 'wellness' | 'learning' | 'tracker';
 
 export interface DiaryEntry {
   id: number;
   date: string;
+  time: string;
   text: string;
   mood: string;
 }
@@ -56,6 +59,8 @@ export default function App() {
       case 'ai':        return <AITools />;
       case 'interview': return <Interview />;
       case 'wellness':  return <Wellness onToast={showToast} />;
+      case 'learning':  return <LearningPath />;
+      case 'tracker':   return <Tracker />;
     }
   };
 

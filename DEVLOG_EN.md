@@ -256,6 +256,103 @@ POST /api/jobs/refresh
 - Replaced "Jobs waiting" stat card with "Last job scan" (reads `lastUpdated` from `data/jobs.json`)
 - Made stat cards clickable — each navigates to its corresponding page (Tasks→Todo, Diary→Diary, Last scan→Jobs)
 
+### Phase 8 — Learning Path Page (2025-05-25)
+
+**Background:**
+- Difficult to know what to learn without real work experience
+- Integrated a 10-month learning plan (created with ChatGPT + Claude) into the app
+- Serves as a skill tracking tool and direction guide
+
+**Design decisions:**
+- Removed Phase 5 (Portfolio) — skills-only focus
+- No time periods shown (removed "Month 1-2" etc.) — actively applying now, no deadline pressure
+- 4 default phases fixed as a base, freely extendable with AI
+
+**Default 4 phases:**
+1. Cloud Fundamentals (Azure)
+2. Docker + CI/CD
+3. LLMs in Production
+4. Agentic Systems + Architecture
+
+**Core features:**
+- Overall progress bar (completed / total skills)
+- Collapsible phase cards
+- Skill checklist with strikethrough on completion
+- Individual skill delete (hover to reveal ×)
+- Phase delete with inline confirmation
+- Manual skill addition per phase
+- Add new phase button
+
+**AI Skill Planner:**
+- "What do you want to learn?" input
+- OpenAI generates specific, practical skills + resources
+- Choose which phase to add skills to
+- Pick individual skills to add (not forced to take all)
+- "Try again" to regenerate
+
+**Resources feature:**
+- 1-2 learning resources per skill
+- Click skill to expand resources
+- Type badges: official (blue), free (green), paid (amber)
+- Click to open in new tab
+- AI-generated skills also include auto-generated resources
+- Default phase skills pre-loaded with official docs and YouTube resources
+
+**Data:**
+- Stored in localStorage under `jr_learning`
+- Structure: `{ phases: [{ id, name, description, skills: [{ id, text, done, resources }] }] }`
+- Check state and custom skills persist across sessions
+
+### Phase 9 — Application Tracker (2025-05-25)
+
+**Core features:**
+- Log company, role, date, status, note, URL, and JD for each application
+- 6 status types: Applied, In Review, Interview, Offer, Rejected, Withdrawn
+- Colour-coded status badges: blue / amber / purple / green / gray / gray
+- 4 stat cards: total applied, interview rate, active applications, offers
+- Filter bar: All / Applied / Interview / Offer / Rejected (with counts)
+- Sorted by date descending (newest first)
+
+**Per application:**
+- Company name becomes a clickable link if URL is provided
+- JD is collapsed by default — click "JD ▸" chip to expand (optional field)
+- Note: single line, short
+- Inline edit mode
+- Delete with inline confirmation ("Delete this application? [Yes, delete] [Cancel]")
+
+**Data:**
+- Stored in localStorage under `jr_applications`
+- Structure: `[{ id, company, role, date, status, note, jd, url }]`
+
+### Phase 10 — Data Backup/Restore + Timezone Fix (2025-05-27)
+
+**Background:**
+- A forced Windows update shut down the app, wiping all localStorage data
+- 65 job application records in the Application Tracker were permanently lost
+- Added Export/Import backup feature to prevent recurrence
+
+**Export/Import feature:**
+- Export and Import buttons added to the bottom of the Sidebar
+- Export: bundles all localStorage keys (`jr_planner`, `jr_diaries`, `jr_applications`, `jr_learning`, `jr_stresses_destroyed`, `jr_music_link`) into a single JSON file
+- Filename format: `jobreadynz-backup-YYYY-MM-DD.json`
+- Import: opens file picker → inline confirmation → restores all keys to localStorage → page refresh
+- Import overwrites existing data — confirmation prompt prevents accidents
+- Multiple backup files can coexist; user selects which one to restore
+
+**Recommended backup habits:**
+- After entering a lot of data
+- Before Windows updates
+- Before any major changes
+→ Always Export first
+
+**Timezone fix:**
+- Problem: server ran on UTC, so before NZT noon the app showed yesterday's date
+- Fix: unified all frontend files and server to NZT (Pacific/Auckland)
+- Frontend: `toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' })` pattern across all files
+- Server: `process.env.TZ = 'Pacific/Auckland'` added at the top of server.ts
+- Files updated: `Dashboard.tsx`, `Todo.tsx`, `Diary.tsx`, `Wellness.tsx`, `Tracker.tsx`, `server.ts`
+- All localStorage keys now consistently generated in NZT
+
 ---
 
 *This document is updated continuously as the project develops.*

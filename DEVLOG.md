@@ -250,6 +250,103 @@ POST /api/jobs/refresh
 - "Jobs waiting" 카드 → "Last job scan" 카드로 교체 (`data/jobs.json` lastUpdated 읽기)
 - 통계 카드 클릭 시 해당 페이지로 이동 (Tasks→Todo, Diary→Diary, Last scan→Jobs)
 
+### Phase 8 — Learning Path 페이지 추가 (2025-05-25)
+
+**배경:**
+- 실무 경험 없이 "뭘 배워야 하나" 방향을 잡기 어려운 상황
+- ChatGPT + Claude로 짠 10개월 학습 계획을 앱에 통합
+- 스킬 트래킹 + 방향 가이드 역할
+
+**구조 결정:**
+- Phase 5 (Portfolio) 제거 — 스킬 중심으로만 구성
+- 기간 표시 없음 (Month 1-2 같은 거 제거) — 취업은 지금도 진행 중이라 기간 압박 없애기
+- 기본 4개 Phase 고정, 그 위에 AI로 자유롭게 추가/수정 가능
+
+**기본 4개 Phase:**
+1. Cloud Fundamentals (Azure)
+2. Docker + CI/CD
+3. LLMs in Production
+4. Agentic Systems + Architecture
+
+**주요 기능:**
+- 전체 진행률 바 (완료 스킬 / 전체 스킬)
+- Phase 카드 클릭으로 펼치기/접기
+- 스킬 체크리스트 (클릭하면 취소선 + 완료 처리)
+- 스킬 개별 삭제 (hover시 × 버튼)
+- Phase 자체 삭제 (인라인 확인 UI)
+- 수동으로 스킬 직접 추가 가능
+- 새 Phase 추가 버튼
+
+**AI 스킬 플래너:**
+- "어떤 스킬을 배우고 싶어요?" 입력창
+- OpenAI가 구체적이고 실용적인 스킬 목록 + 리소스 생성
+- 어떤 Phase에 추가할지 선택 가능
+- 개별 스킬 선택해서 원하는 것만 추가
+- "Try again"으로 재생성 가능
+
+**리소스 기능:**
+- 각 스킬마다 학습 리소스 1-2개 포함
+- 스킬 클릭하면 리소스 펼쳐짐
+- 리소스 타입별 배지: official(파랑), free(초록), paid(노랑)
+- 클릭하면 원본 링크 새 탭으로 열기
+- AI로 추가한 스킬도 자동으로 리소스 같이 생성
+- 기본 Phase 스킬에도 공식 문서/YouTube 리소스 미리 포함
+
+**데이터:**
+- localStorage `jr_learning`에 저장
+- 구조: `{ phases: [{ id, name, description, skills: [{ id, text, done, resources }] }] }`
+- 앱 껐다 켜도 체크 상태 + 커스텀 스킬 유지
+
+### Phase 9 — Application Tracker 추가 (2025-05-25)
+
+**주요 기능:**
+- 지원한 회사/직무/날짜/상태/메모/URL/JD 기록
+- 상태 6종: Applied, In Review, Interview, Offer, Rejected, Withdrawn
+- 상태별 색깔 배지: 파랑/노랑/보라/초록/회색/회색
+- 상단 통계 카드 4개: 총 지원 수, 면접 전환율, 활성 지원, 오퍼 수
+- 필터 바: All / Applied / Interview / Offer / Rejected (각 카운트 표시)
+- 날짜 최신순 정렬
+
+**각 지원 항목:**
+- URL 있으면 회사명이 클릭 가능한 링크로 표시
+- JD는 접혀있고 "JD ▸" 칩 클릭하면 펼쳐짐 (optional)
+- 메모: 한 줄 짧게
+- 인라인 편집 모드
+- 삭제 시 인라인 확인 UI ("Delete this application? [Yes, delete] [Cancel]")
+
+**데이터:**
+- localStorage `jr_applications`에 저장
+- 구조: `[{ id, company, role, date, status, note, jd, url }]`
+
+### Phase 10 — 데이터 백업/복구 + 시간대 수정 (2025-05-27)
+
+**배경:**
+- 윈도우 업데이트로 앱이 강제종료되면서 localStorage 데이터 전체 소실
+- Application Tracker에 기록했던 65개 지원 기록 복구 불가
+- 재발 방지를 위해 Export/Import 백업 기능 추가
+
+**Export/Import 기능:**
+- Sidebar 하단에 Export / Import 버튼 추가
+- Export: `jr_planner`, `jr_diaries`, `jr_applications`, `jr_learning`, `jr_stresses_destroyed`, `jr_music_link` 전체를 하나의 JSON으로 묶어서 다운로드
+- 파일명: `jobreadynz-backup-YYYY-MM-DD.json`
+- Import: 파일 탐색기에서 백업 파일 선택 → 인라인 확인 후 localStorage 전체 복원 → 페이지 새로고침
+- Import는 기존 데이터를 덮어씀 (overwrite) → 확인창으로 실수 방지
+- 백업 파일 여러 개 있어도 Import 시 직접 선택 가능
+
+**습관 권장:**
+- 데이터 많이 입력했을 때
+- 윈도우 업데이트 전
+- 중요한 작업 전
+→ Export로 백업 저장
+
+**시간대 수정:**
+- 기존: 컴퓨터 로컬 시간 기준 (서버는 UTC로 돌아가서 NZT 오전엔 날짜가 하루 전으로 나오는 문제)
+- 수정: 프론트엔드 5개 파일 + 서버 전체를 NZT(Pacific/Auckland)로 통일
+- 프론트: `toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' })` 패턴으로 통일
+- 서버: `process.env.TZ = 'Pacific/Auckland'` 파일 최상단에 추가
+- 수정된 파일: `Dashboard.tsx`, `Todo.tsx`, `Diary.tsx`, `Wellness.tsx`, `Tracker.tsx`, `server.ts`
+- localStorage 키가 모든 파일에서 NZT 기준으로 일관성 있게 유지됨
+
 ---
 
 *이 문서는 개발이 진행될수록 계속 업데이트됩니다.*
