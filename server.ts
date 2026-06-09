@@ -89,7 +89,8 @@ async function fetchAdzunaPage(keyword: string, page: number): Promise<AdzunaJob
     `https://api.adzuna.com/v1/api/jobs/nz/search/${page}` +
     `?app_id=${appId}&app_key=${appKey}` +
     `&results_per_page=20` +
-    `&what=${encodeURIComponent(keyword)}`;
+    `&what=${encodeURIComponent(keyword)}` +
+    `&max_days_old=14`;
 
   console.log(`Adzuna URL: ${urlStr}`);
 
@@ -122,16 +123,17 @@ Analyse this job and return JSON only:
 Job title: ${title}
 Job description: ${description.slice(0, 500)}
 
-Mark NOT suitable if:
-- Requires NZ citizenship or permanent residency
-- Requires 1+ years of experience
-- Senior or intermediate level
+Mark NOT suitable if ANY of these are true:
+- Requires NZ citizenship or permanent residency only
+- Mentions any years of experience required or preferred (e.g. '1+ years', '2-3 years', 'minimum 1 year', 'at least X years', 'X years experience preferred')
+- Senior, intermediate, mid-level, or lead role
+- Management or team lead responsibilities
 
-Mark suitable if:
-- Entry level or graduate role
-- No experience required
-- Work visa accepted
-- CS or Maths degree relevant`;
+Mark suitable ONLY if:
+- Explicitly says entry level, graduate, no experience required, or fresh graduate welcome
+- Does not mention any experience requirements at all
+- Work visa or open work rights accepted (or no visa restriction mentioned)
+- Role aligns with CS or Maths degree`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',

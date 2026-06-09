@@ -6,7 +6,7 @@ interface JobRecord {
   company: string;
   location: string;
   url: string;
-  source: 'Seek' | 'Trade Me' | 'Adzuna';
+  source: 'Adzuna';
   reason: string;
   postedDate?: string;
   salary?: string;
@@ -37,6 +37,20 @@ function formatDate(iso: string) {
     day: 'numeric', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
+}
+
+function formatPostedDate(iso: string): string {
+  const now = new Date();
+  const posted = new Date(iso);
+  const nzDate = (d: Date) =>
+    new Intl.DateTimeFormat('en-CA', { timeZone: 'Pacific/Auckland', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+  const diffDays = Math.round(
+    (new Date(nzDate(now)).getTime() - new Date(nzDate(posted)).getTime()) / 86_400_000
+  );
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return new Intl.DateTimeFormat('en-NZ', { timeZone: 'Pacific/Auckland', day: 'numeric', month: 'short' }).format(posted);
 }
 
 const SOURCE_STYLE: Record<string, { label: string; bg: string; color: string; btnLabel: string }> = {
@@ -171,6 +185,11 @@ export default function Jobs() {
                     {job.salary && (
                       <div style={{ fontSize: 12, color: 'var(--text)', marginTop: 3 }}>
                         💰 {job.salary}
+                      </div>
+                    )}
+                    {job.postedDate && (
+                      <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>
+                        Posted {formatPostedDate(job.postedDate)}
                       </div>
                     )}
                   </div>

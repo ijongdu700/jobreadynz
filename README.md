@@ -22,8 +22,11 @@
 | Job Finder | ✅ Complete |
 | Wellness Corner | ✅ Complete |
 | News Automation | ✅ Complete |
-| Learning Path | 🔧 In progress |
-| Application Tracker | 🔧 In progress |
+| Learning Path | ✅ Complete |
+| Application Tracker | ✅ Complete |
+
+✅ All core features complete and working locally
+📅 Vercel deployment — when ready to go public
 
 ---
 
@@ -103,6 +106,23 @@ The app runs locally and is designed for personal use, with a clean dark UI and 
 - Click any article to open the original source
 - Displayed on Dashboard, always up to date
 
+### 🎯 Learning Path
+- 4-phase skill roadmap: Azure → Docker/CI/CD → LLMs → Agentic Systems
+- Collapsible phase cards with skill checklists and progress tracking
+- Each skill has learning resources (official docs, free/paid courses) with type badges
+- **AI Skill Planner** — describe what you want to learn, OpenAI generates a new phase with specific skills and resources
+- Add, delete, and check off skills; add entirely new phases
+- All progress saved to `localStorage`
+
+### 📨 Application Tracker
+- Log every job application: company, role, date, status, note, URL, and JD
+- 6 status types with colour badges: Applied, In Review, Interview, Offer, Rejected, Withdrawn
+- Stats dashboard: total applied, interview rate, active applications, offers
+- Filter by status with live counts
+- JD field collapsed by default — click to expand when needed
+- Inline edit and delete with confirmation
+- **Data export/import** — back up all app data as JSON, restore anytime
+
 ### ☀ Wellness Corner
 - 🐱 Virtual cat to pet (expression changes with each click)
 - 💥 Stress Buster — type your stress, click to explode it
@@ -141,9 +161,10 @@ The app runs locally and is designed for personal use, with a clean dark UI and 
 │        React Frontend           │
 │  (Vite dev server :5173)        │
 │                                 │
-│  Dashboard  │  Todo  │  Diary   │
-│  AITools    │  Jobs  │ Wellness │
+│  Dashboard  │  Todo   │  Diary  │
+│  AITools    │  Jobs   │Wellness │
 │  Interview  │  News             │
+│  Learning   │  Tracker          │
 └──────────────┬──────────────────┘
                │ /api/* (Vite proxy)
                ▼
@@ -255,10 +276,8 @@ This reflects a modern development approach where AI accelerates implementation,
 
 ## Project Status
 
-✅ Core features complete and working locally  
-🔜 Application Tracker — coming next  
-🔜 Skill Tracker — planned  
-📅 Vercel deployment — when ready to go public  
+✅ All core features complete and working locally
+📅 Vercel deployment — when ready to go public
 
 ---
 
